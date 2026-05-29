@@ -12,8 +12,8 @@ dependencies = [
   "ifaddr>=0.2.0",
   "pexpect>=4.9.0",
   "pycryptodome>=3.20.0,<4",
-  "zopfli>=0.2.3.post1",
   "zeroconf>=0.132.2",
+  "zopfli>=0.2.3.post1",
 ]
 
 [project.scripts]
@@ -43,3 +43,9 @@ show_missing = true
 testpaths = ["tests"]
 pythonpath = [".", "src"]
 addopts = "-ra"
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.7",
+    "pytest>=8.4.2",
+]
