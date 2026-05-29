@@ -10,7 +10,6 @@
 #   4) .venv/bin/tcapsule doctor
 #
 # Targets:
-#   make venv                    - create local virtualenv at .venv
 #   make install                 - install Python dependencies into .venv
 #   make test                    - run C compile checks and Python pytest suite
 #   make test-parallel           - run C compile checks and module-parallel test runner
@@ -22,34 +21,23 @@
 #   make set-ssh                 - advanced SSH toggle helper
 #   make clean                   - remove the .venv directory
 
-.PHONY: venv install test test-parallel coverage coverage-html test-c discover bootstrap-host set-ssh setup clean
+.PHONY: install test test-parallel coverage coverage-html test-c discover bootstrap-host set-ssh setup clean
 
-VENVDIR := .venv
-PYTHON := python3
-PIP := $(VENVDIR)/bin/pip
-PY := $(VENVDIR)/bin/python
-
-venv:
-	$(PYTHON) -m venv $(VENVDIR)
-	@echo "Run: source $(VENVDIR)/bin/activate"
-
-install: venv
-	$(PIP) install -U pip
-	$(PIP) install -r requirements.txt
-	$(PIP) install -e .
+install: 
+	uv sync
 
 test: install test-c
-	$(PY) -m pytest
+	uv run pytest
 
 test-parallel: install test-c
-	PYTHONPATH=src $(PY) -m tests.run_parallel --jobs auto --verbose
+	uv run pytest -n auto
 
 coverage: install
-	$(PY) -m coverage run -m pytest
-	$(PY) -m coverage report
+	uv run coverage run -m pytest
+	uv run coverage report
 
 coverage-html: coverage
-	$(PY) -m coverage html
+	uv run coverage html
 	@echo "Open htmlcov/index.html to inspect line-by-line coverage."
 
 test-c:
@@ -57,15 +45,15 @@ test-c:
 	cc -Wall -Wextra -Werror -o /tmp/nbns-advertiser-test build/nbns-advertiser.c
 
 discover: install
-	$(VENVDIR)/bin/tcapsule discover
+	uv run tcapsule discover
 
 bootstrap-host:
 	./tcapsule bootstrap
 
 set-ssh: install
-	$(VENVDIR)/bin/tcapsule set-ssh
+	uv run tcapsule set-ssh
 
 setup: install
 
 clean:
-	rm -rf $(VENVDIR)
+	uv clean
